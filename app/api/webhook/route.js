@@ -1,39 +1,30 @@
 export async function POST(req) {
   try {
-    const body = await req.json();
+    const text = await req.text();
 
-    console.log("🔥 WEBHOOK MASUK:", body);
+    console.log("🔥 RAW BODY:", text);
 
-    const { transactionId, status, order_id } = body;
-
-    // 🧠 CEK STATUS PEMBAYARAN
-    if (status === "PAID" || status === "success") {
-      console.log("💰 PAYMENT SUCCESS:", transactionId);
-
-      // TODO: nanti di sini auto delivery produk
-      // contoh:
-      // - update database
-      // - kirim email / WA
-      // - unlock akses user
-
+    let body;
+    try {
+      body = JSON.parse(text);
+    } catch (err) {
       return Response.json({
-        message: "Payment berhasil diproses",
-        transactionId,
-        status: "PAID"
-      });
+        error: "Invalid JSON",
+        raw: text
+      }, { status: 400 });
     }
 
-    // kalau belum bayar / expired
+    console.log("🔥 PARSED BODY:", body);
+
     return Response.json({
-      message: "Webhook diterima (belum paid)",
-      status
+      message: "OK",
+      body
     });
 
   } catch (error) {
-    console.error("❌ WEBHOOK ERROR:", error);
+    console.log("❌ WEBHOOK ERROR:", error);
 
     return Response.json({
-      message: "Webhook error",
       error: error.message
     }, { status: 500 });
   }
