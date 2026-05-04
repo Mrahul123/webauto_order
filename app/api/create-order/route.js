@@ -47,6 +47,29 @@ export async function POST(req) {
 
     console.log("QR SUCCESS:", transactionId);
 
+    const { error: insertError } = await supabase
+        .from("orders")
+        .insert([
+          {
+            order_id,
+            product,
+            email,
+            amount,
+            transaction_id: transactionId,
+            status: "pending"
+          }
+        ]);
+
+      if (insertError) {
+        console.log("❌ INSERT ORDER ERROR:", insertError);
+        return Response.json(
+          {
+            message: "QRIS berhasil dibuat, tapi gagal simpan order",
+            error: insertError.message
+          },
+          { status: 500 }
+        );
+      }
     return Response.json({
       message: "Order + QRIS berhasil",
       order_id,
