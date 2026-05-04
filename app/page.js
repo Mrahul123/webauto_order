@@ -25,7 +25,7 @@ const products = [
     notes: ["Invite: Android/iOS", "Head: khusus Android, bisa invite 5 orang", "Full garansi"]
   },
   {
-    id: "bstation", name: "Bstation Premium", icon: "📺", cat: "streaming", type: "Sharing",
+    id: "bstation", name: "Bstation PRO", icon: "📺", cat: "streaming", type: "Sharing",
     tiers: [
       { label: "1 Bulan", price: "Rp 9.000" },
       { label: "3 Bulan", price: "Rp 15.000" },
