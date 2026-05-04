@@ -6,6 +6,9 @@ export default function AdminPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [password, setPassword] = useState("");
+  const [isLogin, setIsLogin] = useState(false);
+
   async function fetchOrders() {
     setLoading(true);
 
@@ -19,6 +22,81 @@ export default function AdminPage() {
   useEffect(() => {
     fetchOrders();
   }, []);
+
+if (!isLogin) {
+  return (
+    <div style={{
+      minHeight: "100vh",
+      background: "#0d1117",
+      color: "#e8edf5",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontFamily: "Arial, sans-serif"
+    }}>
+      <div style={{
+        width: "100%",
+        maxWidth: 360,
+        background: "#161b24",
+        padding: 24,
+        borderRadius: 16,
+        border: "1px solid rgba(77,184,212,0.2)"
+      }}>
+        <h2 style={{ marginBottom: 10 }}>Login Admin</h2>
+        <p style={{ color: "#8fa3b8", marginBottom: 16 }}>
+          Masukkan password admin.
+        </p>
+
+        <input
+          type="password"
+          placeholder="Password admin"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{
+            width: "100%",
+            padding: 12,
+            borderRadius: 10,
+            border: "1px solid rgba(77,184,212,0.25)",
+            background: "#0d1117",
+            color: "#fff",
+            marginBottom: 12
+          }}
+        />
+
+        <button
+          onClick={async () => {
+            const res = await fetch("/api/admin-login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ password })
+            });
+
+            const data = await res.json();
+
+            if (data.ok) {
+              setIsLogin(true);
+              fetchOrders();
+            } else {
+              alert("Password salah!");
+            }
+          }}
+          style={{
+            width: "100%",
+            padding: 12,
+            borderRadius: 10,
+            border: "none",
+            background: "#4db8d4",
+            color: "#fff",
+            fontWeight: 700,
+            cursor: "pointer"
+          }}
+        >
+          Masuk
+        </button>
+      </div>
+    </div>
+  );
+}
 
   return (
     <div style={{
