@@ -145,6 +145,7 @@ if (!isLogin) {
                 <th style={th}>Email</th>
                 <th style={th}>Amount</th>
                 <th style={th}>Status</th>
+                <th style={th}>Delivery</th>
                 <th style={th}>Order ID</th>
                 <th style={th}>Transaction ID</th>
                 <th style={th}>Tanggal</th>
@@ -168,6 +169,18 @@ if (!isLogin) {
                       {o.status}
                     </span>
                   </td>
+                  <td style={td}>
+                    <span style={{
+                        padding: "4px 10px",
+                        borderRadius: 20,
+                        background: o.delivery_status === "sent" ? "#14532d" : "#1e3a8a",
+                        color: o.delivery_status === "sent" ? "#86efac" : "#bfdbfe",
+                        fontSize: 12,
+                        fontWeight: 700
+                    }}>
+                        {o.delivery_status || "pending"}
+                    </span>
+                    </td>
                   <td style={td}>{o.order_id}</td>
                   <td style={td}>{o.transaction_id}</td>
                   <td style={td}>

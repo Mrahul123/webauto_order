@@ -41,7 +41,10 @@ export async function POST(req) {
     if (status === "PAID" || status === "paid" || status === "success") {
       const { data, error } = await supabase
         .from("orders")
-        .update({ status: "paid" })
+        .update({
+          status: "paid",
+            delivery_status: "sent"
+        })
         .eq("transaction_id", transactionId)
         .select();
 
