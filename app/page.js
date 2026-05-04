@@ -362,7 +362,7 @@ export default function Home() {
     ["jasa", "🔧 Jasa & Lainnya"],
   ];
 
-  async function orderProduct(product) {
+async function orderProduct(product) {
   const tier = selectedTier[product.id];
 
   if (!tier) {
@@ -371,6 +371,7 @@ export default function Home() {
   }
 
   setLoading(true);
+  setQrImage(null);
 
   try {
     const amount = parseInt(tier.price.replace(/[^0-9]/g, ""));
@@ -388,17 +389,21 @@ export default function Home() {
     });
 
     const data = await res.json();
+    console.log("ORDER RESPONSE:", data);
+
+    if (!res.ok || !data.qr_image) {
+      throw new Error(data?.message || "QRIS tidak tersedia");
+    }
+
     setQrImage(data.qr_image);
-    const [transactionId, setTransactionId] = useState(null);
 
   } catch (err) {
-    console.error(err);
-    alert("Gagal generate QRIS");
+    console.error("ORDER ERROR:", err);
+    alert("Gagal generate QRIS: " + err.message);
+  } finally {
+    setLoading(false);
   }
-
-  setLoading(false);
 }
-
   return (
     <>
       <style jsx global>{`@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Poppins:wght@500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
@@ -915,7 +920,7 @@ export default function Home() {
                     )}
                   </div>
                   <div className="card-footer">
-                    <button type="button" className="btn-order" onClick={() => orderProduct(p)}>
+                    <button type="button" className="btn-order" onClick={() => orderProduct(p)} disabled={loading}>
                       <WhatsappIcon size={15} /> {loading ? "Loading..." : "Bayar Sekarang"}
                     </button>
                   </div>
