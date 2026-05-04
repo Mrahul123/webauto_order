@@ -1,11 +1,11 @@
 import axios from "axios";
+import { supabase } from "@/lib/supabase";
 
 export async function POST(req) {
   const body = await req.json();
-  const { product, email } = body;
+  const { product, email, amount } = body;
 
   const order_id = "INV-" + Date.now();
-  const amount = 1000;
 
   try {
     // 🔥 REQUEST KE CASHIFY QRIS V2
@@ -31,6 +31,16 @@ export async function POST(req) {
 
     const qrString = payment.data.data.qr_string;
     const transactionId = payment.data.data.transactionId;
+    await supabase.from("orders").insert([
+        {
+          order_id,
+          product,
+          email,
+          amount,
+          transaction_id: transactionId,
+          status: "pending"
+        }
+    ]);
 
     // 🎨 QR STYLISH (BIRU MUDA)
     const qrStyledUrl = `https://larabert-qrgen.hf.space/v1/create-qr-code?size=500x500&style=2&color=38bdf8&data=${encodeURIComponent(qrString)}`;

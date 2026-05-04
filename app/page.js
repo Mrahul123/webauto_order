@@ -339,6 +339,9 @@ function WhatsappIcon({ size = 16 }) {
 export default function Home() {
   const [currentCat, setCurrentCat] = useState("all");
   const [currentSearch, setCurrentSearch] = useState("");
+  const [selectedTier, setSelectedTier] = useState({});
+  const [qrImage, setQrImage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
@@ -360,9 +363,41 @@ export default function Home() {
   ];
 
   async function orderProduct(product) {
-    // Untuk tahap awal masih ke WA. Nanti bisa diganti ke /api/create-order QRIS otomatis.
-    window.open(WA, "_blank");
+  const tier = selectedTier[product.id];
+
+  if (!tier) {
+    alert("Pilih paket dulu!");
+    return;
   }
+
+  setLoading(true);
+
+  try {
+    const amount = parseInt(tier.price.replace(/[^0-9]/g, ""));
+
+    const res = await fetch("/api/create-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        product: `${product.name} - ${tier.label}`,
+        email: "test@gmail.com",
+        amount
+      })
+    });
+
+    const data = await res.json();
+    setQrImage(data.qr_image);
+    const [transactionId, setTransactionId] = useState(null);
+
+  } catch (err) {
+    console.error(err);
+    alert("Gagal generate QRIS");
+  }
+
+  setLoading(false);
+}
 
   return (
     <>
@@ -820,7 +855,18 @@ export default function Home() {
               </button>
             ))}
           </div>
-
+            {qrImage && (
+              <div style={{
+                textAlign: "center",
+                marginBottom: 30,
+                padding: 20,
+                border: "1px solid #4db8d4",
+                borderRadius: 12
+              }}>
+                <h3>Scan QR untuk bayar</h3>
+                <img src={qrImage} alt="QRIS" style={{ maxWidth: 250 }} />
+              </div>
+            )}
           <div className="catalog-grid">
             {filteredProducts.length === 0 ? (
               <div style={{ gridColumn: "1/-1", textAlign: "center", color: "var(--text-muted)", padding: "60px 20px", fontSize: "1rem" }}>
@@ -837,12 +883,31 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="card-body">
-                    {p.tiers.map((t) => (
-                      <div className="tier" key={`${p.id}-${t.label}`}>
-                        <span className="tier-label">{t.label}</span>
-                        <span className="tier-price">{t.price}</span>
-                      </div>
-                    ))}
+                    {p.tiers.map((t, i) => {
+                      const isSelected = selectedTier[p.id]?.label === t.label;
+
+                      return (
+                        <div
+                          key={t.label}
+                          className="tier"
+                          style={{
+                            cursor: "pointer",
+                            background: isSelected ? "rgba(77,184,212,0.15)" : "transparent",
+                            borderRadius: 6,
+                            padding: "6px"
+                          }}
+                          onClick={() =>
+                            setSelectedTier({
+                              ...selectedTier,
+                              [p.id]: t
+                            })
+                          }
+                        >
+                          <span className="tier-label">{t.label}</span>
+                          <span className="tier-price">{t.price}</span>
+                        </div>
+                      );
+                    })}
                     {p.notes?.length > 0 && (
                       <div className="card-notes">
                         {p.notes.map((n) => <div className="note-item" key={`${p.id}-${n}`}>{n}</div>)}
@@ -851,7 +916,7 @@ export default function Home() {
                   </div>
                   <div className="card-footer">
                     <button type="button" className="btn-order" onClick={() => orderProduct(p)}>
-                      <WhatsappIcon size={15} /> Order via WA
+                      <WhatsappIcon size={15} /> {loading ? "Loading..." : "Bayar Sekarang"}
                     </button>
                   </div>
                 </div>

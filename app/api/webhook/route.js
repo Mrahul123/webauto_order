@@ -1,3 +1,5 @@
+import { supabase } from "@/lib/supabase";
+
 export async function POST(req) {
   try {
     const text = await req.text();
@@ -16,9 +18,24 @@ export async function POST(req) {
 
     console.log("🔥 PARSED BODY:", body);
 
+    const { transactionId, status } = body;
+
+    // 🔥 UPDATE DATABASE JIKA PAID
+    if (status === "PAID") {
+      const { error } = await supabase
+        .from("orders")
+        .update({ status: "paid" })
+        .eq("transaction_id", transactionId);
+
+      if (error) {
+        console.log("❌ DB UPDATE ERROR:", error);
+      } else {
+        console.log("✅ STATUS UPDATED:", transactionId);
+      }
+    }
+
     return Response.json({
-      message: "OK",
-      body
+      message: "OK"
     });
 
   } catch (error) {
