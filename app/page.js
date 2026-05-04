@@ -34,7 +34,7 @@ const products = [
     notes: ["Garansi login", "Cek berkala jika limit"]
   },
   {
-    id: "canva", name: "Canva Pro", icon: "🎨", cat: "desain", type: "Member / Edu / Head",
+    id: "canva", name: "Canva Prremium", icon: "🎨", cat: "desain", type: "Member / Edu / Head",
     tiers: [
       { label: "Member 1 Bulan", price: "Rp 1.000" },
       { label: "Member 6 Bulan", price: "Rp 5.000" },
